@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fitness Goal Tracker</title>
+
+<style>
+* { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+}
+
+header {
+    background: #2e7d32;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.container {
+    max-width: 700px;
+    margin: 30px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #1b5e20;
+}
+
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f1f8e9;
+    border-radius: 8px;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: #555;
+}
+</style>
+</head>
+
+<body>
+
+<header>Fitness Goal Tracker</header>
+
+<div class="container">
+
+<h3>Enter Your Details</h3>
+
+<select id="gender">
+    <option value="m">Male</option>
+    <option value="f">Female</option>
+</select>
+
+<input id="name" placeholder="Name">
+<input id="weight" placeholder="Current Weight (kg)" type="number">
+<input id="height" placeholder="Height (meters)" type="number" step="0.01">
+<input id="age" placeholder="Age (years)" type="number">
+<input id="goalWeight" placeholder="Goal Weight (kg)" type="number">
+<input id="weeks" placeholder="Weeks to reach goal" type="number">
+
+<select id="activity">
+    <option value="1.2">Sedentary</option>
+    <option value="1.375">Lightly Active</option>
+    <option value="1.55">Moderately Active</option>
+    <option value="1.725">Very Active</option>
+    <option value="1.9">Extra Active</option>
+</select>
+
+<button onclick="calculate()">Calculate & Save Report</button>
+
+<div class="result" id="output"></div>
+
+<div class="footer">
+Made By<br>
+Ayush Pathak · Jatin Diwakar · Harish Singh Mahara · Krrish Adhikari
+</div>
+
+</div>
+
+<script>
+function bmiCategory(bmi){
+    if(bmi < 18.5) return "Underweight";
+    else if(bmi < 25) return "Healthy";
+    else if(bmi < 30) return "Overweight";
+    else return "Obese";
+}
+
+function calculate(){
+    let gender = document.getElementById("gender").value;
+    let name = document.getElementById("name").value;
+    let weight = parseFloat(weight.value);
+    let height = parseFloat(height.value);
+    let age = parseInt(age.value);
+    let goalWeight = parseFloat(goalWeight.value);
+    let weeks = parseInt(weeks.value);
+    let activity = parseFloat(activity.value);
+
+    let bmi = weight / (height*height);
+    let goalBMI = goalWeight / (height*height);
+
+    let category = bmiCategory(bmi);
+    let goalCategory = bmiCategory(goalBMI);
+
+    let bmr;
+    if(gender === "m"){
+        bmr = 88.362 + (13.397*weight) + (4.799*(height*100)) - (5.677*age);
+    } else {
+        bmr = 447.593 + (9.247*weight) + (3.098*(height*100)) - (4.330*age);
+    }
+
+    let maintenance = bmr * activity;
+    let diff = goalWeight - weight;
+    let dailyAdjust = (diff * 7700) / (weeks*7);
+    let goalCalories = maintenance + dailyAdjust;
+
+    let minHealthy = 18.5 * height * height;
+    let maxHealthy = 24.9 * height * height;
+
+    output.innerHTML = `
+    <b>Hello ${name}</b><br>
+    Current BMI: ${bmi.toFixed(2)} (${category})<br>
+    Goal BMI: ${goalBMI.toFixed(2)} (${goalCategory})<br>
+    Daily Calories Needed: <b>${goalCalories.toFixed(0)}</b><br>
+    Healthy Weight Range: ${minHealthy.toFixed(1)} – ${maxHealthy.toFixed(1)} kg
+    `;
+
+    // FILE SAVE (Download)
+    let text = `
+--- Fitness Report ---
+Name: ${name}
+Gender: ${gender === "m" ? "Male" : "Female"}
+Current Weight: ${weight} kg
+Goal Weight: ${goalWeight} kg
+BMI: ${bmi.toFixed(2)} (${category})
+Goal BMI: ${goalBMI.toFixed(2)} (${goalCategory})
+Daily Calories: ${goalCalories.toFixed(0)}
+Healthy Weight Range: ${minHealthy.toFixed(1)} – ${maxHealthy.toFixed(1)} kg
+`;
+
+    let blob = new Blob([text], {type: "text/plain"});
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "fitness_tracker.txt";
+    a.click();
+}
+</script>
+
+</body>
+</html>
